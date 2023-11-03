@@ -19,6 +19,7 @@ from datetime import datetime
 from typing import cast
 
 from flask_wtf import FlaskForm
+from wtforms.validators import DataRequired, EqualTo, InputRequired, Length # Add validators
 from wtforms import (
     BooleanField,
     DateField,
@@ -37,11 +38,27 @@ from wtforms import (
 
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
+# Madeleine (wtforms):
+# class LoginForm(FlaskForm):
+#     username = StringField('Username')
+#     password = PasswordField('Password')
+#     submit = SubmitField('Sign In')
+
+# class RegistrationForm(FlaskForm):
+#     first_name = StringField('First Name', validators=[InputRequired(), Length(min=1, max=35)])
+#     last_name = StringField('Last Name', validators=[InputRequired(), Length(min=1, max=35)])
+#     email = StringField('Email Address', validators=[InputRequired(), Length(min=6, max=35)])
+#     password = PasswordField('New Password', validators=[
+#         DataRequired(),
+#         EqualTo('password_confirm', message='Passwords must match')
+#     ])
+#     password_confirm = PasswordField('Repeat Password')
+#     accept_tos = BooleanField('I accept the TOS', validators=[DataRequired()])
 
 class LoginForm(FlaskForm):
     """Provides the login form for the application."""
 
-    username = StringField(label="Username", render_kw={"placeholder": "Username"})
+    username = StringField(label="Username", validators=[InputRequired(), EqualTo('username', message='Username required')], render_kw={"placeholder": "Username"})
     password = PasswordField(label="Password", render_kw={"placeholder": "Password"})
     remember_me = BooleanField(
         label="Remember me"
@@ -49,14 +66,18 @@ class LoginForm(FlaskForm):
     submit = SubmitField(label="Sign In")
 
 
+# Madeleine:
+# added wtforms validators
+
+
 class RegisterForm(FlaskForm):
     """Provides the registration form for the application."""
 
-    first_name = StringField(label="First Name", render_kw={"placeholder": "First Name"})
+    first_name = StringField(label="First Name", validators=[InputRequired()], render_kw={"placeholder": "First Name"})
     last_name = StringField(label="Last Name", render_kw={"placeholder": "Last Name"})
     username = StringField(label="Username", render_kw={"placeholder": "Username"})
-    password = PasswordField(label="Password", render_kw={"placeholder": "Password"})
-    confirm_password = PasswordField(label="Confirm Password", render_kw={"placeholder": "Confirm Password"})
+    password = PasswordField('New Password', [InputRequired(), EqualTo('confirm', message='Passwords must match')])
+    password_confirm  = PasswordField('Repeat Password')
     submit = SubmitField(label="Sign Up")
 
 

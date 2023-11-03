@@ -4,17 +4,35 @@ from pathlib import Path
 from typing import cast
 
 from flask import Flask
+# Madeleine:
+# add sqlite flask database extension
+from flask_sqlalchemy import SQLAlchemy 
+
+# Madeleine:
+# from flask_login import LoginManager to manage login sessions
+from flask_login import LoginManager
+
 
 from app.config import Config
 from app.database import SQLite3
 
-# from flask_login import LoginManager
+
+# Madeleine:
+# add CSRF protection to mitigate CSRF attacks
+from flask_wtf.csrf import CSRFProtect
+
+# Madeleine: ???
+# add bcrypt to hash passwords
 # from flask_bcrypt import Bcrypt
-# from flask_wtf.csrf import CSRFProtect
+
 
 # Instantiate and configure the app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Madeleine:
+# Instantiate the login manager
+login = LoginManager(app)
 
 # Instantiate the sqlite database extension
 sqlite = SQLite3(app, schema="schema.sql")
@@ -26,7 +44,9 @@ sqlite = SQLite3(app, schema="schema.sql")
 # bcrypt = Bcrypt(app)
 
 # TODO: The CSRF protection is not working, I should probably fix that
-# csrf = CSRFProtect(app)
+csrf = CSRFProtect()
+
+csrf.init_app(app)
 
 # Create the instance and upload folder if they do not exist
 with app.app_context():

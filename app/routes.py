@@ -8,7 +8,21 @@ from pathlib import Path
 
 from flask import flash, redirect, render_template, send_from_directory, url_for
 
+# Madeleine:
+# flask login
+from flask_login import current_user, login_user, logout_user, login_required
+
 from app import app, sqlite
+#Madeleine:
+# import user class
+# from app.models import User
+
+# Madeleine:
+# import database
+# from app.database import SQLite3
+
+# Madeleine:
+# from app.forms import RegistrationForm, LoginForm
 from app.forms import CommentsForm, FriendsForm, IndexForm, PostForm, ProfileForm
 
 
@@ -51,6 +65,24 @@ def index():
         return redirect(url_for("index"))
 
     return render_template("index.html.j2", title="Welcome", form=index_form)
+
+# Madeleine:
+# register route
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm(request.form)
+#     if request.method == 'POST' and form.validate():
+#         user = User(form.first_name.data, form.last_name.data,form.email.data,
+#                     form.password.data)
+#         db_session.add(user)
+#         flash('Thanks for registering')
+#         return redirect(url_for('login'))
+#     return render_template('register.html', form=form)
+
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+
+
 
 
 @app.route("/stream/<string:username>", methods=["GET", "POST"])
