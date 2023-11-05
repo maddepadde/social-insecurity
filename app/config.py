@@ -17,11 +17,7 @@ import os
 
 
 class Config:
-    # Ensure that the secret key is set in the environment, otherwise raise an error
-    if not os.environ.get("SECRET_KEY"):
-        raise ValueError("No SECRET_KEY set for Flask application")
-    SECRET_KEY = os.environ.get("SECRET_KEY")
-    
+    SECRET_KEY = os.environ.get("SECRET_KEY", "your_default_fallback_secret_key_here")
     SQLITE3_DATABASE_PATH = "sqlite3.db"  # Path relative to the Flask instance folder
     UPLOADS_FOLDER_PATH = "uploads"  # Path relative to the Flask instance folder
     
@@ -29,3 +25,4 @@ class Config:
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
     
     WTF_CSRF_ENABLED = True  # Enable CSRF protection for forms
+
