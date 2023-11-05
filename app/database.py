@@ -1,15 +1,3 @@
-"""Provides a SQLite3 database extension for Flask.
-
-This extension provides a simple interface to the SQLite3 database.
-
-Example:
-    from flask import Flask
-    from app.database import SQLite3
-
-    app = Flask(__name__)
-    db = SQLite3(app)
-"""
-
 from __future__ import annotations
 
 import sqlite3
@@ -21,57 +9,13 @@ from flask import Flask, current_app, g
 
 
 class SQLite3:
-    """Provides a SQLite3 database extension for Flask.
-
-    This class provides a simple interface to the SQLite3 database.
-    It also initializes the database if it does not exist yet.
-
-    Example:
-        from flask import Flask
-        from app.database import SQLite3
-
-        app = Flask(__name__)
-        db = SQLite3(app)
-
-        # Use the database
-        # db.query("SELECT * FROM Users;")
-        # db.query("SELECT * FROM Users WHERE id = 1;", one=True)
-        # db.query("INSERT INTO Users (name, email) VALUES ('John', 'test@test.net');")
-    """
-
-    def __init__(
-        self,
-        app: Optional[Flask] = None,
-        *,
-        path: Optional[PathLike | str] = None,
-        schema: Optional[PathLike | str] = None,
-    ) -> None:
-        """Initializes the extension.
-
-        params:
-            app: The Flask application to initialize the extension with.
-            path (optional): The path to the database file. Is relative to the instance folder.
-            schema (optional): The path to the schema file. Is relative to the application root folder.
-
-        """
+    def __init__(self, app: Optional[Flask] = None, *, path: Optional[PathLike | str] = None, schema: Optional[PathLike | str] = None) -> None:
+        """Initializes the extension with optional Flask app, path, and schema."""
         if app is not None:
             self.init_app(app, path=path, schema=schema)
 
-    def init_app(
-        self,
-        app: Flask,
-        *,
-        path: Optional[PathLike | str] = None,
-        schema: Optional[PathLike | str] = None,
-    ) -> None:
-        """Initializes the extension.
-
-        params:
-            app: The Flask application to initialize the extension with.
-            path (optional): The path to the database file. Is relative to the instance folder.
-            schema (optional): The path to the schema file. Is relative to the application root folder.
-
-        """
+    def init_app(self, app: Flask, *, path: Optional[PathLike | str] = None, schema: Optional[PathLike | str] = None) -> None:
+        """Initializes the extension with a Flask app, path, and schema."""
         if not hasattr(app, "extensions"):
             app.extensions = {}
 
@@ -107,24 +51,22 @@ class SQLite3:
             conn.row_factory = sqlite3.Row
         return conn
 
-    def query(self, query: str, one: bool = False, *args) -> Any:
-        """Queries the database and returns the result.'
+    def query(self, query: str, one: bool = False, params: Optional[tuple] = None) -> Any:
+        """Executes a query using prepared statements."""
+        try:
+            cursor = self.connection.execute(query, params or ())
+            response = cursor.fetchone() if one else cursor.fetchall()
+            cursor.close()
+            self.connection.commit()
+            return response
+        except sqlite3.DatabaseError as e:
+            # Log the error, for example: app.logger.error(f"Database error: {e}")
+            raise
 
-        params:
-            query: The SQL query to execute.
-            one: Whether to return a single row or a list of rows.
-            args: Additional arguments to pass to the query.
-
-        returns: A single row, a list of rows or None.
-
-        """
-        cursor = self.connection.execute(query, args)
-        response = cursor.fetchone() if one else cursor.fetchall()
-        cursor.close()
-        self.connection.commit()
-        return response
-
-    # TODO: Add more specific query methods to simplify code
+    # Specific query methods example
+    def get_user_by_id(self, user_id: int) -> Optional[dict]:
+        """Gets a user by their ID."""
+        return self.query("SELECT * FROM Users WHERE id = ?", one=True, params=(user_id,))
 
     def _init_database(self, schema: PathLike | str) -> None:
         """Initializes the database with the supplied schema if it does not exist yet."""
